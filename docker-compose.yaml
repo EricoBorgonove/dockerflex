@@ -1,0 +1,78 @@
+version: '2'
+
+services:
+  mysql:
+    image: mysql:5.7
+    command: mysqld --sql_mode=""
+    container_name: flex-mysql
+    restart: always
+    tty: true
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - ${DATA_LIB}/data/mysql:/var/lib/mysql
+      - ./mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    ports:
+      - 3306:3306
+    networks:
+      - flex-network
+      
+  node:
+    build:
+      context: ./node
+      args:
+        - USER_UID=${USER_UID}
+        - USER_GID=${USER_GID}
+    container_name: flex-node
+    restart: always
+    volumes:
+      - ../:/var/www/
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+      - ./openssl.cnf:/etc/ssl/openssl.cnf
+      - "./node/ecosystem.config.js:/tmp/ecosystem.config.js"
+    networks:
+      - flex-network
+    tty: true
+    depends_on:
+      - workspace
+
+  workspace:
+    build:
+      context: ./workspace
+      args:
+        - USER_UID=${USER_UID}
+        - USER_GID=${USER_GID}
+    container_name: flex-workspace
+    restart: always
+    volumes:
+      - ../:/var/www/
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+      - ./openssl.cnf:/etc/ssl/openssl.cnf
+    networks:
+      - flex-network
+    tty: true
+
+  caddy:
+    build: ./caddy
+    volumes:
+      - ../:/var/www
+      - ./caddy/caddy:/etc/caddy
+      - .logs/caddy:/var/log/caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - flex-network
+    restart: always
+    tty: true  
+
+networks: 
+  flex-network:
+    driver: bridge
+

@@ -1,0 +1,7 @@
+.env
+.idea
+nginx/sites/*
+!nginx/sites/laravel.conf
+!nginx/sites/localhost.conf
+postgres/docker-entrypoint-initdb.d/
+mysql/docker-entrypoint-initdb.d/

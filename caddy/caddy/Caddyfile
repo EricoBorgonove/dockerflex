@@ -1,0 +1,16 @@
+# EXEMPLO COM REVERSE_PROXY COM NODE
+#https://HOST {
+#    reverse_proxy node:PORTA
+#}
+
+# EXEMPLO REDIRECIONAR HTTP PARA HTTPS
+#http://HOST {
+#    redir https://HOST{uri}
+#}
+
+# EXEMPLO COM APLICAÇÃO REACT
+#https://HOST {
+#    root * /var/www/NOME_DA_PASTA/build
+#    try_files {path} /index.html
+#    file_server
+#}
